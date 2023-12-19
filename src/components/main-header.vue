@@ -9,7 +9,7 @@
     <!-- header内容 -->
     <div class="content">
       <!-- 面包屑 -->
-      <div class="breadcrumb">面包屑</div>
+      <mainHeaderCrumb></mainHeaderCrumb>
       <!-- 个人信息和头像图标 -->
       <div class="infos">
         <div class="icons">
@@ -50,6 +50,7 @@ import { LOGIN_TOKEN } from '@/global/constants'
 import { localCache } from '@/utils/cache'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import mainHeaderCrumb from './main-header-crumb.vue'
 
 const emit = defineEmits(['iconChange'])
 

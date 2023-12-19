@@ -3,13 +3,11 @@ import type { RouteRecordRaw } from 'vue-router'
 //加载本地路由
 function loadLocalRoutes() {
   const localRoutes: RouteRecordRaw[] = []
-  // console.log('加载本地路由', localRoutes)
 
   //1、读取router/main里所有ts文件
   const files: Record<string, any> = import.meta.glob('../router/main/**/*.ts', {
     eager: true
   })
-  // console.log(files);
 
   //2、将加载的对象放在localRoutes
   for (const key in files) {
@@ -37,7 +35,14 @@ export function mapMenusToRoutes(userMenus: any[]) {
         // console.log('Checking subMenu.url:', subMenu.url) // 打印每个检查的路由对象
         return item.path === subMenu.url
       })
-      if (route) routes.push(route)
+      if (route) {
+        //给route的顶层菜单增加重定向功能，仅添加一次
+        if (!routes.find((item) => item.path === menu.url)) {
+          routes.push({ path: menu.url, redirect: route.path })
+        }
+        //将二级菜单加到路由
+        routes.push(route)
+      }
       if (!firstMenu && route) firstMenu = subMenu //记录第一个匹配到的菜单
     }
   }
@@ -53,9 +58,27 @@ export function mapMenusToRoutes(userMenus: any[]) {
 export function mapPathToMenu(path: string, userMenus: any[]) {
   for (const menu of userMenus) {
     for (const subMenu of menu.children) {
+      console.log('subMenu:', subMenu)
+
       if (subMenu.url === path) {
         return subMenu
       }
     }
   }
+}
+
+export function mapPathToBreakcrumbs(path: string, userMenus: any[]) {
+  //定义面包屑
+  const breakcrumbs: any[] = []
+
+  //遍历获取面包屑层级
+  for (const menu of userMenus) {
+    for (const subMenu of menu.children) {
+      if (subMenu.url === path) {
+        breakcrumbs.push({ name: menu.name, path: menu.url })
+        breakcrumbs.push({ name: subMenu.name, path: subMenu.url })
+      }
+    }
+  }
+  return breakcrumbs
 }
