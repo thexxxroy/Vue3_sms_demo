@@ -21,16 +21,16 @@ function loadLocalRoutes() {
 }
 
 //映射菜单跳转路由
+export let firstMenu: any = null
+
 export function mapMenusToRoutes(userMenus: any[]) {
   //加载本地路由
   const localRoutes = loadLocalRoutes()
-  // console.log('映射菜单跳转路由', localRoutes)
 
   //根据菜单去匹配正确的路由
   const routes: RouteRecordRaw[] = []
   for (const menu of userMenus) {
     for (const subMenu of menu.children) {
-
       //在 localRoutes 数组中查找第一个 path 属性与 subMenu.url 相匹配的元素。
       const route = localRoutes.find((item) => {
         // console.log('Checking route item:', item) // 打印每个检查的路由对象
@@ -38,9 +38,24 @@ export function mapMenusToRoutes(userMenus: any[]) {
         return item.path === subMenu.url
       })
       if (route) routes.push(route)
+      if (!firstMenu && route) firstMenu = subMenu //记录第一个匹配到的菜单
     }
   }
-  // console.log('根据菜单去匹配正确的路由', routes)
 
   return routes
+}
+
+/**
+ * 根据路径去匹配需要显示的菜单
+ * @param path  需要匹配的路径
+ * @param userMenus 所有菜单
+ */
+export function mapPathToMenu(path: string, userMenus: any[]) {
+  for (const menu of userMenus) {
+    for (const subMenu of menu.children) {
+      if (subMenu.url === path) {
+        return subMenu
+      }
+    }
+  }
 }

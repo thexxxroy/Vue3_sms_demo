@@ -8,7 +8,7 @@
     <!-- main -->
     <div class="menu">
       <el-menu
-        default-active="3"
+        :default-active=defaultActive
         :collapse="isFoldHere"
         text-color="#b7bdc3"
         active-text-color="#fff"
@@ -36,7 +36,9 @@
 </template>
 <script setup lang="ts">
 import useLoginStore from '@/pinia/login/login'
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'
+import { mapPathToMenu } from '@/utils/map-menus'
+import { ref } from 'vue';
 
 //定义props接受父的数据
 defineProps({
@@ -49,15 +51,20 @@ defineProps({
 // 1.获取动态的菜单
 const loginStore = useLoginStore()
 const userMenus = loginStore.userMenus
+console.log(userMenus)
 
 // 2.监听item的点击
 const router = useRouter()
 function handleItemClick(item: any) {
   const url = item.url
-  console.log(url);
-  
   router.push(url)
 }
+
+//刷新默认选中菜单
+const route = useRoute()
+const pathMenu = mapPathToMenu(route.path, userMenus)
+const defaultActive = ref(String(pathMenu.id))
+
 </script>
 <style lang="less" scoped>
 .logo {

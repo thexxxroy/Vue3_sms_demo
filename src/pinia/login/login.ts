@@ -14,9 +14,9 @@ interface ILoginState {
 
 const useLoginStore = defineStore('login', {
   state: (): ILoginState => ({
-    token: localCache.getCache(LOGIN_TOKEN) ?? '',
-    userInfo: localCache.getCache('userInfo') ?? {},
-    userMenus: localCache.getCache('userMenus') ?? []
+    token: '',
+    userInfo: {},
+    userMenus: []
   }),
   actions: {
     async loginAccountAction(account: IAccount) {
@@ -35,7 +35,6 @@ const useLoginStore = defineStore('login', {
       const userMenuRes = await getUserMenuByRoleId(this.userInfo.role.id)
       const userMenus = userMenuRes.data //请求到数据后保存到state里
       this.userMenus = userMenus
-      // console.log('userMenus:', userMenus)
 
       //4.本地缓存
       localCache.setCache('userInfo', userInfo)
@@ -43,12 +42,25 @@ const useLoginStore = defineStore('login', {
 
       //动态添加路由（重要）
       const routes = mapMenusToRoutes(userMenus)
-      // console.log(routes)
 
       routes.forEach((route) => router.addRoute('main', route))
 
       //.页面跳转
       router.push('/main')
+    },
+    loadLocalCacheAction() {
+      //用户刷新页面时默认加载数据
+      const token = localCache.getCache(LOGIN_TOKEN)
+      const userInfo = localCache.getCache('userInfo')
+      const userMenus = localCache.getCache('userMenus')
+      if (token && userInfo && userMenus) {
+        this.token = token
+        this.userInfo = userInfo
+        this.userMenus = userMenus
+        //动态添加路由
+        const routes = mapMenusToRoutes(userMenus)
+        routes.forEach((route) => router.addRoute('main', route))
+      }
     }
   }
 })
